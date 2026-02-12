@@ -14,8 +14,7 @@ export class PricingPage {
 
 
   ngOnInit(): void {
-    // this.seoPage.setTitle('Pricing Page');
-    // this.seoPage.setMetaDescription('This is the pricing page');
-    console.log(isPlatformServer(this.seoPage.platformId));
+    this.seoPage.setTitle('Pricing Page');
+    this.seoPage.setMetaDescription('This is the pricing page');
   }
 }
