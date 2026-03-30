@@ -3,6 +3,11 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
 
 {
+  path: 'pokemons',
+  loadComponent: () => import('./pages/pokemons/pokemons-page').then(m => m.PokemonsPage)
+},
+
+{
   path: 'about',
   loadComponent: () => import('./pages/about-page/about-page').then(m => m.AboutPage)
 },
