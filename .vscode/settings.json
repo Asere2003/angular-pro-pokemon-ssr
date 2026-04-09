@@ -4,5 +4,19 @@
             "externalTemplate": true,
             "skipStyle": true
         }
-    }
+    },
+    // Desactiva sugerencias rápidas/intellisense
+  "editor.quickSuggestions": {
+    "comments": "off",
+    "strings": "off",
+    "other": "off"
+  },
+    // Desactiva Copilot solo en este proyecto
+    "github.copilot.enable": {"*": false},
+  // Desactiva SonarQube solo en este proyecto
+  "sonarlint.disable": true,
+  // Desactiva CodeLens (anotaciones sobre funciones)
+  "editor.codeLens": false,
+    // Desactiva Inlay Hints (anotaciones en línea)
+    "editor.inlayHints.enabled": "off"
 }

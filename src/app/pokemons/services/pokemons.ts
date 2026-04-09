@@ -20,7 +20,7 @@ export class Pokemons {
     }
 
     /* Asegurarse de que la página no sea negativa */
-        page = Math.max(0, page);
+        page = Math.max(1, page);
 
     return this.http.get<PokemonAPIResponse>(
       `https://pokeapi.co/api/v2/pokemon?offset=${page * 20}&limit=20`

@@ -1,9 +1,13 @@
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApplicationRef, ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { map, tap } from 'rxjs';
 
 import { PokemonList } from "../../pokemons/components/pokemon-list/pokemon-list";
 import { PokemonListSkeleton } from "./ui/pokemon-list-skeleton/pokemon-list-skeleton";
 import { Pokemons } from '../../pokemons/services/pokemons';
 import { SimplePokemon } from '../../pokemons/interface/simple-pokemon';
+import { Title } from '@angular/platform-browser';
+import { toSignal } from '@angular/core/rxjs-interop'
 
 @Component({
   selector: 'pokemons-page',
@@ -13,9 +17,20 @@ import { SimplePokemon } from '../../pokemons/interface/simple-pokemon';
 })
 export class PokemonsPage implements OnInit{
 
+  private title = inject(Title)
   private readonly pokemonsService = inject(Pokemons);
   public pokemons = signal<SimplePokemon[]>([]);
-  public currentPage = signal(0);
+  public route = inject(ActivatedRoute)
+  public router = inject(Router)
+
+
+  public currentPage = toSignal<number>(
+    this.route.queryParamMap.pipe(
+      map( params => params.get('page') ?? '1'),
+      map(page => (isNaN(+page) ? 1 : +page )),
+      map(page => Math.max(1, page ))
+    )
+  );
 
   // public isloading = signal(true);
 
@@ -28,7 +43,7 @@ export class PokemonsPage implements OnInit{
 
   ngOnInit() {
 
-    this.loadPokemons(this.currentPage());
+    this.loadPokemons(0)
 
     // setTimeout(() => {
     //   this.isloading.set(false);
@@ -40,26 +55,23 @@ export class PokemonsPage implements OnInit{
   //   this.$appRef.unsubscribe();
   // }
 
-  public loadPokemons( page : number ) {
-      this.pokemonsService.loadPage(page).subscribe( pokemons => {
-        this.pokemons.set(pokemons);
+  public loadPokemons( page : number = 1 ) {
+
+      const pageToLoad = this.currentPage()! + page;
+
+      this.pokemonsService.loadPage(pageToLoad)
+        .pipe(
+          tap( () => {
+            this.router.navigate([], { queryParams : { page : pageToLoad } })
+          }),
+          tap(() => {
+            this.title.setTitle( `pokemons--SSR  ${ pageToLoad }` )
+          })
+        )
+        .subscribe( pokemons => {
+          this.pokemons.set(pokemons);
       });
   }
 
-  public loadNextPage() {
-    if (this.currentPage() == 0) {
-      this.currentPage.set(1);
-    }
-    const nextPage = this.currentPage() + 1;
-    this.currentPage.set(nextPage);
-    this.loadPokemons(nextPage);
-  }
 
-  public loadPreviousPage() {
-    const previousPage = this.currentPage() - 1;
-    if (previousPage >= 0) {
-      this.currentPage.set(previousPage);
-      this.loadPokemons(previousPage);
-    }
-  }
 }
